@@ -18,8 +18,8 @@
   (let [program-lines (map #(format "lein run %s" %) (keys programs))]
     (println (str/join "\n" (conj program-lines "Usage:")))))
 
-(defn run-streams
-  "Run streams and block, shutting down gracefully on interrupt."
+(defn start-streams
+  "Start streams and block, shutting down gracefully on interrupt."
   [streams]
   (let [latch (new CountDownLatch 1)]
     ;; Remember to run with `lein trampoline run`
@@ -33,21 +33,11 @@
     (println "Awaiting latch...")
     (.await latch)))
 
-(defn run
-  "Run the example kafka streams app."
-  [streams]
-  (try
-    (run-streams streams)
-    (catch Throwable e
-      (println (format "Caught this: %s" e))
-      (System/exit 1)))
-  (System/exit 0))
-
 (defn -main
   "Run the example kafka streams app."
   [& args]
   (println "Hello, World!")
   (let [streams (get programs (first args))]
     (if streams
-      (run streams)
+      (start-streams streams)
       (usage))))
