@@ -11,16 +11,15 @@
   {"pipe" pipe/run
    "line-split" line-split/run})
 
-(def usage
-  "The usage statement"
+(defn usage
+  "Print the usage statement"
+  []
   (let [program-lines (map #(format "lein run %s" %) (keys programs))]
-    (str/join "\n" (conj program-lines "Usage:"))))
+    (println (str/join "\n" (conj program-lines "Usage:")))))
 
 (defn -main
   "Run the example kafka streams app."
   [& args]
   (println "Hello, World!")
-  (let [program (get programs (first args))]
-    (if program
-      (program)
-      (println usage))))
+  (let [program (get programs (first args) usage)]
+    (program)))
