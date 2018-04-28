@@ -22,24 +22,26 @@
 
 (def streams (new KafkaStreams topology props))
 
-(def latch (new CountDownLatch 1))
-
-;; Remember to run with `lein trampoline run`
-;; otherwise Lein will intercept the C-c (shared JVM)
-(.addShutdownHook (Runtime/getRuntime)
-                  (new Thread #(do (println "Shutting down...")
-                                   (.close streams)
-                                   (.countDown latch))))
+(defn run-streams
+  "Run streams and block, shutting down gracefully on interrupt."
+  [streams]
+  (let [latch (new CountDownLatch 1)]
+    ;; Remember to run with `lein trampoline run`
+    ;; otherwise Lein will intercept the C-c (shared JVM)
+    (.addShutdownHook (Runtime/getRuntime)
+                      (new Thread #(do (println "Shutting down...")
+                                       (.close streams)
+                                       (.countDown latch))))
+    (println "Starting streams...")
+    (.start streams)
+    (println "Awaiting latch...")
+    (.await latch)))
 
 (defn run
   "Run the example kafka streams app."
   [& args]
-  (println "Hello, World!")
   (try
-    (println "Starting streams...")
-    (.start streams)
-    (println "Awaiting latch...")
-    (.await latch)
+    (run-streams streams)
     (catch Throwable e
       (println (format "Caught this: %s" e))
       (System/exit 1)))
