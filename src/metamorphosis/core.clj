@@ -1,46 +1,26 @@
 (ns metamorphosis.core
   "This is a fairly straight translation of the Kafka Streams tutorial at:
    http://kafka.apache.org/11/documentation/streams/tutorial."
-  (:import [java.util Properties]
-           [java.util.concurrent CountDownLatch]
-           [org.apache.kafka.streams KafkaStreams StreamsBuilder StreamsConfig]
-           [org.apache.kafka.common.serialization Serdes])
+  (:require [clojure.string :as str]
+            [metamorphosis.pipe :as pipe]
+            [metamorphosis.line-split :as line-split])
   (:gen-class))
 
-(def props
-  (doto (new Properties)
-    (.put StreamsConfig/APPLICATION_ID_CONFIG "streams-pipe")
-    (.put StreamsConfig/BOOTSTRAP_SERVERS_CONFIG "localhost:9092")
-    (.put StreamsConfig/DEFAULT_KEY_SERDE_CLASS_CONFIG (class (Serdes/String)))
-    (.put StreamsConfig/DEFAULT_VALUE_SERDE_CLASS_CONFIG (class (Serdes/String)))))
+(def programs
+  "The programs that can be run as part of the Kafka Streams tutorial."
+  {"pipe" pipe/run
+   "line-split" line-split/run})
 
-(def builder (new StreamsBuilder))
-(-> builder
-    (.stream "streams-plaintext-input")
-    (.to "streams-pipe-output"))
-(def topology (.build builder))
-
-(def streams (new KafkaStreams topology props))
-
-(def latch (new CountDownLatch 1))
-
-;; Remember to run with `lein trampoline run`
-;; otherwise Lein will intercept the C-c (shared JVM)
-(.addShutdownHook (Runtime/getRuntime)
-                  (new Thread #(do (println "Shutting down...")
-                                   (.close streams)
-                                   (.countDown latch))))
+(def usage
+  "The usage statement"
+  (let [program-lines (map #(format "lein run %s" %) (keys programs))]
+    (str/join "\n" (conj program-lines "Usage:"))))
 
 (defn -main
   "Run the example kafka streams app."
   [& args]
   (println "Hello, World!")
-  (try
-    (println "Starting streams...")
-    (.start streams)
-    (println "Awaiting latch...")
-    (.await latch)
-    (catch Throwable e
-      (println (format "Caught this: %s" e))
-      (System/exit 1)))
-  (System/exit 0))
+  (let [program (get programs (first args))]
+    (if program
+      (program)
+      (println usage))))
