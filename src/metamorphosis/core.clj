@@ -3,14 +3,16 @@
    http://kafka.apache.org/11/documentation/streams/tutorial."
   (:require [clojure.string :as str]
             [metamorphosis.pipe :as pipe]
-            [metamorphosis.line-split :as line-split])
+            [metamorphosis.line-split :as line-split]
+            [metamorphosis.word-count :as word-count])
   (:import [java.util.concurrent CountDownLatch])
   (:gen-class))
 
 (def programs
   "The programs that can be run as part of the Kafka Streams tutorial."
   {"pipe" pipe/streams
-   "line-split" line-split/streams})
+   "line-split" line-split/streams
+   "word-count" word-count/streams})
 
 (defn usage
   "Print the usage statement"

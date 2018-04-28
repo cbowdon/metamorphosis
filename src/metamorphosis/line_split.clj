@@ -10,7 +10,7 @@
 (def split-words
   "Value mapper to split text on whitespace. Consecutive spaces count as one."
   (reify ValueMapper
-    (apply [this value] (str/split value #"\s+"))))
+    (apply [this v] (str/split v #"\s+"))))
 
 (def builder (new StreamsBuilder))
 (-> builder
