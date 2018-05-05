@@ -2,6 +2,8 @@
 
 This is a fairly straight translation of the Kafka Streams tutorial at: http://kafka.apache.org/11/documentation/streams/tutorial.
 
+Done as a learning exercise rather than a demo of how best to do Kafka Streams in Clojure (there's libs available).
+
 ## Installation
 
 - Requires make, Kafka 1.1.0 and Lein
